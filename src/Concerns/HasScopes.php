@@ -1,6 +1,6 @@
 <?php
 
-namespace NekoOs\ChameleonAccess;
+namespace NekoOs\ChameleonAccess\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;

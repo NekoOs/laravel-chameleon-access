@@ -3,9 +3,9 @@
 namespace NekoOs\ChameleonAccess\Models;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Schema\PostgresBuilder;
 use Spatie\Permission\Models\Role;
 
 /**
@@ -17,8 +17,6 @@ use Spatie\Permission\Models\Role;
  */
 class Grouping extends Model
 {
-    use HasFactory;
-
     public $incrementing = false;
     public $timestamps = false;
     protected $keyType = 'string';
@@ -80,14 +78,22 @@ class Grouping extends Model
         return $this->create($scope);
     }
 
-    protected function lastChild()
+    public function lastChild()
     {
         $pieces = explode('.', $this->getAttribute('id'));
         $regexp = '^' . implode('\.', [...$pieces, '\d+']) . '$';
 
+        $operator = 'regexp';
+        $type = "UNSIGNED";
+
+        if ($this->getConnection()->getSchemaBuilder() instanceof PostgresBuilder) {
+            $operator = '~';
+            $type = 'INTEGER';
+        }
+
         return (new static)
-            ->where('id', 'regexp', $regexp)
-            ->orderByRaw("CAST(REPLACE(id, '.', '0') AS UNSIGNED) DESC")
+            ->where('id', $operator, $regexp)
+            ->orderByRaw("CAST(REPLACE(id, '.', '0') AS {$type}) DESC")
             ->first();
     }
 
@@ -102,9 +108,17 @@ class Grouping extends Model
         array_pop($pieces);
         $regexp = '^' . implode('\.', [...$pieces, '\d+']) . '$';
 
+        $operator = 'regexp';
+        $type = "UNSIGNED";
+
+        if ((new static())->getConnection()->getSchemaBuilder() instanceof PostgresBuilder) {
+            $operator = '~';
+            $type = 'INTEGER';
+        }
+
         $scope = (new static)
-            ->where('id', 'regexp', $regexp)
-            ->orderByRaw("CAST(REPLACE(id, '.', '0') AS UNSIGNED) DESC")
+            ->where('id', $operator, $regexp)
+            ->orderByRaw("CAST(REPLACE(id, '.', '0') AS $type) DESC")
             ->first();
 
         $pieces = explode('.', optional($scope)->getAttribute('id') ?? $seed);

@@ -1,0 +1,42 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateModelGroupingsTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up(): void
+    {
+        Schema::create('model_groupings', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('grouping_id');
+            $table->foreign('grouping_id')
+                ->references('id')
+                ->on('groupings');
+
+            $table->morphs('model');
+
+            $table->unique([
+                'grouping_id',
+                'model_type',
+                'model_id',
+            ]);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('model_groupings');
+    }
+}
