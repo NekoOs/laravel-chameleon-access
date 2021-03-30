@@ -1,0 +1,19 @@
+{
+    "name": "nekoos/laravel-chameleon-access",
+    "description": "Permission handling for Laravel 6.0 and up",
+    "type": "library",
+    "require-dev": {
+        "spatie/laravel-permission": "4.0",
+        "laravel/framework": ">=5.6"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Neder Alfonso Fandiño Andrade",
+            "email": "neder.fandino@outlook.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0"
+    }
+}
