@@ -43,5 +43,5 @@ class User
 A role can be assigned to any user by a scope:
 
 ```php
-$user->withScopeAssignRole($model, 'writer');
+$user->withScopeAssignRoles($model, 'writer');
 ```

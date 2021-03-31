@@ -48,14 +48,14 @@ trait HasScopes
             ->withPivot('id');
     }
 
-    public function withScopeAssignRole(Model $scope, ...$roles): void
+    public function withScopeAssignRoles(Model $scope, ...$roles): void
     {
         $this->groupScope($scope)
             ->pivot
             ->assignRole($roles);
     }
 
-    public function withScopeSyncRole(Model $scope, ...$roles): void
+    public function withScopeSyncRoles(Model $scope, ...$roles): void
     {
         $this->groupScope($scope)
             ->pivot
