@@ -55,6 +55,13 @@ trait HasScopes
             ->assignRole($roles);
     }
 
+    public function withScopeSyncRole(Model $scope, ...$roles): void
+    {
+        $this->groupScope($scope)
+            ->pivot
+            ->syncRoles($roles);
+    }
+
     public function getAllScopedPermissions(): array
     {
         $permissions = [];
