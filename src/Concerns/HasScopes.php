@@ -77,4 +77,15 @@ trait HasScopes
 
         return $permissions;
     }
+
+
+    public function getAllScopedRoles(): array
+    {
+        $permissions = [];
+
+        /** @noinspection PhpUndefinedFieldInspection */
+        $this->groupings->map->pivot->map->roles;
+
+        return $permissions;
+    }
 }
