@@ -13,6 +13,8 @@ use NekoOs\ChameleonAccess\Models\ModelGrouping;
  *
  * @property-read Collection|Grouping[]      $groupings
  * @property-read Collection|ModelGrouping[] $pivot
+ *
+ * @mixin Model
  */
 trait HasScopes
 {
@@ -64,34 +66,14 @@ trait HasScopes
 
     public function getAllScopedPermissions(): Collection
     {
-        $permissions = [];
-
         /** @noinspection PhpUndefinedFieldInspection */
-        $this->groupings->map->pivot->map(function (ModelGrouping $modelGrouping) use (&$permissions) {
-            $modelGrouping
-                ->getAllPermissions()
-                ->each(function ($permission) use (&$permissions, $modelGrouping) {
-                    $permissions[$permission->name] = ($permissions[$permission->name] ?? []) + [$modelGrouping->grouping_id];
-                });
-        });
-
-        return collect($permissions);
+        return $this->groupings->map->pivot->flatMap->getAllPermissions();
     }
 
     public function getScopedPermissionsViaRoles(): Collection
     {
-        $permissions = [];
-
         /** @noinspection PhpUndefinedFieldInspection */
-        $this->groupings->map->pivot->map(function (ModelGrouping $modelGrouping) use (&$permissions) {
-            $modelGrouping
-                ->getPermissionsViaRoles()
-                ->each(function ($permission) use (&$permissions, $modelGrouping) {
-                    $permissions[$permission->name] = ($permissions[$permission->name] ?? []) + [$modelGrouping->grouping_id];
-                });
-        });
-
-        return collect($permissions);
+        return $this->groupings->map->pivot->flatMap->getPermissionsViaRoles();
     }
 
 
