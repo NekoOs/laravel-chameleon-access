@@ -64,10 +64,10 @@ trait HasScopes
             ->syncRoles($roles);
     }
 
-    public function getAllScopedPermissions(): Collection
+    public function getScopedPermissions(): Collection
     {
         /** @noinspection PhpUndefinedFieldInspection */
-        return $this->groupings->map->pivot->flatMap->getAllPermissions();
+        return $this->groupings->map->pivot->flatMap->permissions;
     }
 
     public function getScopedPermissionsViaRoles(): Collection
@@ -76,8 +76,13 @@ trait HasScopes
         return $this->groupings->map->pivot->flatMap->getPermissionsViaRoles();
     }
 
+    public function getAllScopedPermissions(): Collection
+    {
+        /** @noinspection PhpUndefinedFieldInspection */
+        return $this->groupings->map->pivot->flatMap->getAllPermissions();
+    }
 
-    public function getAllScopedRoles(): Collection
+    public function getScopedRoles(): Collection
     {
         /** @noinspection PhpUndefinedFieldInspection */
         return $this->groupings->map->pivot->flatMap->roles;
