@@ -103,4 +103,16 @@ trait HasScopes
 
         return $check;
     }
+
+    public function getAllRoles(): Collection
+    {
+        $directRoles = $this->roles ?? null;
+        $rolesViaScope = $this->getScopedRoles();
+
+        if ($directRoles) {
+            $rolesViaScope = $rolesViaScope->merge($directRoles);
+        }
+
+        return $rolesViaScope;
+    }
 }
