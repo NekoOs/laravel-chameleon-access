@@ -5,6 +5,7 @@ namespace NekoOs\ChameleonAccess\Concerns;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use NekoOs\ChameleonAccess\Models\Grouping;
 use NekoOs\ChameleonAccess\Models\ModelGrouping;
@@ -91,18 +92,17 @@ trait HasScopes
 
     public function can($ability, $arguments = [])
     {
-        $scope = current($arguments);
+        $scope = current(Arr::wrap($arguments));
 
         $check = app(Gate::class)->forUser($this)->check($ability, $arguments);
 
         if (!$check && $scope instanceof Model) {
             $grouping = $this->groupings()
                 ->where('scope_type', $scope->getMorphClass())
-                ->where('scope_type', $scope->id)
+                ->where('scope_id', $scope->id)
                 ->first();
-            $check = (bool)optional($grouping)
-                ->pivot
-                ->hasPermissionTo($ability);
+
+            $check = $grouping ? $grouping->pivot->hasPermissionTo($ability) : false;
         }
 
         return $check;
