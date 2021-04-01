@@ -2,6 +2,7 @@
 
 namespace NekoOs\ChameleonAccess\Concerns;
 
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Collection;
@@ -86,5 +87,20 @@ trait HasScopes
     {
         /** @noinspection PhpUndefinedFieldInspection */
         return $this->groupings->map->pivot->flatMap->roles;
+    }
+
+    public function can($ability, $arguments = [])
+    {
+        $scope = current($arguments);
+
+        $check = app(Gate::class)->forUser($this)->check($ability, $arguments);
+
+        if (!$check && $scope instanceof Model) {
+            $check = $this->groupings->first(static function (Grouping $grouping) use ($ability) {
+                return $grouping->pivot->hasPermissionTo($ability);
+            });
+        }
+
+        return $check;
     }
 }
