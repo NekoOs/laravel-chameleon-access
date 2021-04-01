@@ -62,7 +62,7 @@ trait HasScopes
             ->syncRoles($roles);
     }
 
-    public function getAllScopedPermissions(): array
+    public function getAllScopedPermissions(): Collection
     {
         $permissions = [];
 
@@ -75,17 +75,29 @@ trait HasScopes
                 });
         });
 
-        return $permissions;
+        return collect($permissions);
     }
 
-
-    public function getAllScopedRoles(): array
+    public function getScopedPermissionsViaRoles(): Collection
     {
         $permissions = [];
 
         /** @noinspection PhpUndefinedFieldInspection */
-        $this->groupings->map->pivot->map->roles;
+        $this->groupings->map->pivot->map(function (ModelGrouping $modelGrouping) use (&$permissions) {
+            $modelGrouping
+                ->getPermissionsViaRoles()
+                ->each(function ($permission) use (&$permissions, $modelGrouping) {
+                    $permissions[$permission->name] = ($permissions[$permission->name] ?? []) + [$modelGrouping->grouping_id];
+                });
+        });
 
-        return $permissions;
+        return collect($permissions);
+    }
+
+
+    public function getAllScopedRoles(): Collection
+    {
+        /** @noinspection PhpUndefinedFieldInspection */
+        return $this->groupings->map->pivot->flatMap->roles;
     }
 }
