@@ -96,9 +96,13 @@ trait HasScopes
         $check = app(Gate::class)->forUser($this)->check($ability, $arguments);
 
         if (!$check && $scope instanceof Model) {
-            $check = $this->groupings->first(static function (Grouping $grouping) use ($ability) {
-                return $grouping->pivot->hasPermissionTo($ability);
-            });
+            $grouping = $this->groupings()
+                ->where('scope_type', $scope->getMorphClass())
+                ->where('scope_type', $scope->id)
+                ->first();
+            $check = (bool)optional($grouping)
+                ->pivot
+                ->hasPermissionTo($ability);
         }
 
         return $check;
