@@ -38,7 +38,7 @@ trait HasScopes
         return $grouping ? $grouping->pivot->hasPermissionTo($permission) : false;
     }
 
-    public function getGroupingForScope(Model $scope): Grouping
+    public function getGroupingForScope(Model $scope): ?Grouping
     {
         return $this->groupings()
             ->where('scope_type', $scope->getMorphClass())
