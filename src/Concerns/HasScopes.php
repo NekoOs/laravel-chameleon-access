@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use NekoOs\ChameleonAccess\Models\Grouping;
 use NekoOs\ChameleonAccess\Models\ModelGrouping;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @package NekoOs\ChameleonAccess
@@ -82,7 +83,7 @@ trait HasScopes
             ->syncRoles($roles);
     }
 
-    public function getPermissionsForScope(Model $scopes): Collection
+    public function getDirectPermissionsForScope(Model $scopes): Collection
     {
         return collect($this->getGroupingForScope($scopes)->pivot->permissions ?? null);
     }
@@ -99,7 +100,7 @@ trait HasScopes
         return $this->getGroupingForScope($scope)->pivot->getAllPermissions();
     }
 
-    public function getScopedRolesForScope(Model $scope): Collection
+    public function getRolesForScope(Model $scope): Collection
     {
         /** @noinspection PhpUndefinedFieldInspection */
         return $this->getGroupingForScope($scope)->pivot->roles;
@@ -118,15 +119,50 @@ trait HasScopes
         return $check;
     }
 
-    public function getAllRolesForScope(Model $scope): Collection
+    public function getRolesForScopeAndAllPossibleParentScopes(Model $scope): Collection
     {
-        $directRoles = $this->roles ?? null;
-        $rolesViaScope = $this->getScopedRolesForScope($scope);
+        $rolesViaScope = $this->getRolesForScope($scope);
 
-        if ($directRoles) {
+        if ($directRoles = $this->roles ?? null) {
             $rolesViaScope = $rolesViaScope->merge($directRoles);
         }
 
         return $rolesViaScope;
     }
+
+
+
+    public function getDirectPermissionsForScopeAndAllPossibleParentScopes(Model $scopes): Collection
+    {
+        $permissions = collect($this->getGroupingForScope($scopes)->pivot->permissions ?? null);
+
+        if (method_exists($this, 'getDirectPermissions')) {
+            $permissions = $permissions->merge($this->getDirectPermissions());
+        }
+
+        return $permissions;
+    }
+
+    public function getPermissionsViaRolesForScopeAndAllPossibleParentScopes(Model $scope): Collection
+    {
+        $permissions = $this->getGroupingForScope($scope)->pivot->getPermissionsViaRoles();
+
+        if (method_exists($this, 'getPermissionsViaRoles')) {
+            $permissions = $permissions->merge($this->getPermissionsViaRoles());
+        }
+
+        return $permissions;
+    }
+
+    public function getAllPermissionsForScopeAndAllPossibleParentScopes(Model $scope): Collection
+    {
+        $permissions =  $this->getGroupingForScope($scope)->pivot->getAllPermissions();
+
+        if (method_exists($this, 'getAllPermissions')) {
+            $permissions = $permissions->merge($this->getAllPermissions());
+        }
+
+        return $permissions;
+    }
+
 }
