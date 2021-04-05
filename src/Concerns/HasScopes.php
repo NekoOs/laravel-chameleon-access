@@ -28,6 +28,17 @@ trait HasScopes
             ->givePermissionTo(...$permissions);
     }
 
+
+    public function withScopeHasPermissionTo(Model $scope, $permission): bool
+    {
+        $grouping = $this->groupings()
+            ->where('scope_type', $scope->getMorphClass())
+            ->where('scope_id', $scope->id)
+            ->first();
+
+        return $grouping ? $grouping->pivot->hasPermissionTo($permission) : false;
+    }
+
     public function groupScope(Model $scope): Grouping
     {
         $grouping = Grouping::findByScope($scope);
@@ -97,12 +108,7 @@ trait HasScopes
         $check = app(Gate::class)->forUser($this)->check($ability, $arguments);
 
         if (!$check && $scope instanceof Model) {
-            $grouping = $this->groupings()
-                ->where('scope_type', $scope->getMorphClass())
-                ->where('scope_id', $scope->id)
-                ->first();
-
-            $check = $grouping ? $grouping->pivot->hasPermissionTo($ability) : false;
+            $check = $this->withScopeHasPermissionTo($scope, $ability);
         }
 
         return $check;
