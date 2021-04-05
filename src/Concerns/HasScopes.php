@@ -85,25 +85,22 @@ trait HasScopes
 
     public function getDirectPermissionsForScope(Model $scopes): Collection
     {
-        return collect($this->getGroupingForScope($scopes)->pivot->permissions ?? null);
+        return $this->getGroupingForScope($scopes)->pivot->permissions ?? collect();
     }
 
     public function getPermissionsViaRolesForScope(Model $scope): Collection
     {
-        /** @noinspection PhpUndefinedFieldInspection */
-        return $this->getGroupingForScope($scope)->pivot->getPermissionsViaRoles();
+        return $this->getGroupingForScope($scope)->pivot->getPermissionsViaRoles() ?? collect();
     }
 
     public function getAllPermissionsForScope(Model $scope): Collection
     {
-        /** @noinspection PhpUndefinedFieldInspection */
-        return $this->getGroupingForScope($scope)->pivot->getAllPermissions();
+        return $this->getGroupingForScope($scope)->pivot->getAllPermissions() ?? collect();
     }
 
     public function getRolesForScope(Model $scope): Collection
     {
-        /** @noinspection PhpUndefinedFieldInspection */
-        return $this->getGroupingForScope($scope)->pivot->roles;
+        return $this->getGroupingForScope($scope)->pivot->roles ?? collect();
     }
 
     public function can($ability, $arguments = [])
@@ -132,9 +129,9 @@ trait HasScopes
 
 
 
-    public function getDirectPermissionsForScopeAndAllPossibleParentScopes(Model $scopes): Collection
+    public function getDirectPermissionsForScopeAndAllPossibleParentScopes(Model $scope): Collection
     {
-        $permissions = collect($this->getGroupingForScope($scopes)->pivot->permissions ?? null);
+        $permissions = $this->getDirectPermissionsForScope($scope);
 
         if (method_exists($this, 'getDirectPermissions')) {
             $permissions = $permissions->merge($this->getDirectPermissions());
@@ -145,7 +142,7 @@ trait HasScopes
 
     public function getPermissionsViaRolesForScopeAndAllPossibleParentScopes(Model $scope): Collection
     {
-        $permissions = $this->getGroupingForScope($scope)->pivot->getPermissionsViaRoles();
+        $permissions = $this->getPermissionsViaRolesForScope($scope);
 
         if (method_exists($this, 'getPermissionsViaRoles')) {
             $permissions = $permissions->merge($this->getPermissionsViaRoles());
@@ -156,7 +153,7 @@ trait HasScopes
 
     public function getAllPermissionsForScopeAndAllPossibleParentScopes(Model $scope): Collection
     {
-        $permissions =  $this->getGroupingForScope($scope)->pivot->getAllPermissions();
+        $permissions =  $this->getAllPermissionsForScope($scope);
 
         if (method_exists($this, 'getAllPermissions')) {
             $permissions = $permissions->merge($this->getAllPermissions());
