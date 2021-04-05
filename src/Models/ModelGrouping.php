@@ -3,17 +3,18 @@
 namespace NekoOs\ChameleonAccess\Models;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphPivot;
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Support\Collection;
+use Spatie\Permission\Contracts\Permission;
+use Spatie\Permission\Contracts\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @package NekoOs\ChameleonAccess\Models
  *
- * @property string $grouping_id
+ * @property string                  $grouping_id
+ * @property Collection|Permission[] $permissions
+ * @property Collection|Role[]       $roles
  *
  * @mixin Builder
  */

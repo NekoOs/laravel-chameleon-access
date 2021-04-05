@@ -4,6 +4,7 @@ namespace NekoOs\ChameleonAccess\Concerns;
 
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -31,12 +32,17 @@ trait HasScopes
 
     public function withScopeHasPermissionTo(Model $scope, $permission): bool
     {
-        $grouping = $this->groupings()
+        $grouping = $this->getGroupingForScope($scope);
+
+        return $grouping ? $grouping->pivot->hasPermissionTo($permission) : false;
+    }
+
+    public function getGroupingForScope(Model $scope): Grouping
+    {
+        return $this->groupings()
             ->where('scope_type', $scope->getMorphClass())
             ->where('scope_id', $scope->id)
             ->first();
-
-        return $grouping ? $grouping->pivot->hasPermissionTo($permission) : false;
     }
 
     public function groupScope(Model $scope): Grouping
@@ -45,10 +51,9 @@ trait HasScopes
         $this->groupings()->syncWithoutDetaching($grouping);
 
         /** @var Grouping $grouping */
-        $grouping = $this->groupings()
-            ->where('scope_id', $scope->getAttribute('id'))
-            ->where('scope_type', $scope->getMorphClass())
-            ->firstOrFail();
+        if (!($grouping = $this->getGroupingForScope($scope))) {
+            throw (new ModelNotFoundException)->setModel(get_class($scope));
+        }
 
         return $grouping;
     }
@@ -77,28 +82,27 @@ trait HasScopes
             ->syncRoles($roles);
     }
 
-    public function getScopedPermissions(): Collection
+    public function getPermissionsForScope(Model $scopes): Collection
     {
-        /** @noinspection PhpUndefinedFieldInspection */
-        return $this->groupings->map->pivot->flatMap->permissions;
+        return collect($this->getGroupingForScope($scopes)->pivot->permissions ?? null);
     }
 
-    public function getScopedPermissionsViaRoles(): Collection
+    public function getPermissionsViaRolesForScope(Model $scope): Collection
     {
         /** @noinspection PhpUndefinedFieldInspection */
-        return $this->groupings->map->pivot->flatMap->getPermissionsViaRoles();
+        return $this->getGroupingForScope($scope)->pivot->getPermissionsViaRoles();
     }
 
-    public function getAllScopedPermissions(): Collection
+    public function getAllPermissionsForScope(Model $scope): Collection
     {
         /** @noinspection PhpUndefinedFieldInspection */
-        return $this->groupings->map->pivot->flatMap->getAllPermissions();
+        return $this->getGroupingForScope($scope)->pivot->getAllPermissions();
     }
 
-    public function getScopedRoles(): Collection
+    public function getScopedRolesForScope(Model $scope): Collection
     {
         /** @noinspection PhpUndefinedFieldInspection */
-        return $this->groupings->map->pivot->flatMap->roles;
+        return $this->getGroupingForScope($scope)->pivot->roles;
     }
 
     public function can($ability, $arguments = [])
@@ -114,10 +118,10 @@ trait HasScopes
         return $check;
     }
 
-    public function getAllRoles(): Collection
+    public function getAllRolesForScope(Model $scope): Collection
     {
         $directRoles = $this->roles ?? null;
-        $rolesViaScope = $this->getScopedRoles();
+        $rolesViaScope = $this->getScopedRolesForScope($scope);
 
         if ($directRoles) {
             $rolesViaScope = $rolesViaScope->merge($directRoles);
