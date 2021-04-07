@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use NekoOs\ChameleonAccess\Contracts\Scope;
 use NekoOs\ChameleonAccess\Models\Grouping;
 use NekoOs\ChameleonAccess\Models\ModelGrouping;
-use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @package NekoOs\ChameleonAccess
@@ -23,27 +23,33 @@ use Spatie\Permission\Traits\HasRoles;
 trait HasScopes
 {
 
+    protected $currentScope = false;
+
+    public function withScope(Model $scope): HasScopes
+    {
+        $this->currentScope = $scope;
+        return $this;
+    }
+
+    public function withoutScope(): HasScopes
+    {
+        $this->currentScope = null;
+        return $this;
+    }
+
+    public function resolveCurrentScope()
+    {
+        if ($this->currentScope === false) {
+            $this->currentScope = app(Scope::class);
+        }
+        return $this->currentScope;
+    }
+
     public function withScopeGivePermissionTo(Model $scope, ...$permissions): void
     {
         $this->groupScope($scope)
             ->pivot
             ->givePermissionTo(...$permissions);
-    }
-
-
-    public function withScopeHasPermissionTo(Model $scope, $permission): bool
-    {
-        $grouping = $this->getGroupingForScope($scope);
-
-        return $grouping ? $grouping->pivot->hasPermissionTo($permission) : false;
-    }
-
-    public function getGroupingForScope(Model $scope): ?Grouping
-    {
-        return $this->groupings()
-            ->where('scope_type', $scope->getMorphClass())
-            ->where('scope_id', $scope->id)
-            ->first();
     }
 
     public function groupScope(Model $scope): Grouping
@@ -69,6 +75,14 @@ trait HasScopes
             ->withPivot('id');
     }
 
+    public function getGroupingForScope(Model $scope): ?Grouping
+    {
+        return $this->groupings()
+            ->where('scope_type', $scope->getMorphClass())
+            ->where('scope_id', $scope->id)
+            ->first();
+    }
+
     public function withScopeAssignRoles(Model $scope, ...$roles): void
     {
         $this->groupScope($scope)
@@ -83,37 +97,25 @@ trait HasScopes
             ->syncRoles($roles);
     }
 
-    public function getDirectPermissionsForScope(Model $scopes): Collection
-    {
-        return $this->getGroupingForScope($scopes)->pivot->permissions ?? collect();
-    }
-
-    public function getPermissionsViaRolesForScope(Model $scope): Collection
-    {
-        return $this->getGroupingForScope($scope)->pivot->getPermissionsViaRoles() ?? collect();
-    }
-
-    public function getAllPermissionsForScope(Model $scope): Collection
-    {
-        return $this->getGroupingForScope($scope)->pivot->getAllPermissions() ?? collect();
-    }
-
-    public function getRolesForScope(Model $scope): Collection
-    {
-        return $this->getGroupingForScope($scope)->pivot->roles ?? collect();
-    }
-
     public function can($ability, $arguments = [])
     {
-        $scope = current(Arr::wrap($arguments));
+        $class = current(Arr::wrap($arguments));
 
+        # Check global permission
         $check = app(Gate::class)->forUser($this)->check($ability, $arguments);
 
-        if (!$check && $scope instanceof Model) {
+        if (!$check && $scope = $this->resolveCurrentScope()) {
             $check = $this->withScopeHasPermissionTo($scope, $ability);
         }
 
         return $check;
+    }
+
+    public function withScopeHasPermissionTo(Model $scope, $permission): bool
+    {
+        $grouping = $this->getGroupingForScope($scope);
+
+        return $grouping ? $grouping->pivot->hasPermissionTo($permission) : false;
     }
 
     public function getRolesForScopeAndAllPossibleParentScopes(Model $scope): Collection
@@ -127,7 +129,10 @@ trait HasScopes
         return $rolesViaScope;
     }
 
-
+    public function getRolesForScope(Model $scope): Collection
+    {
+        return $this->getGroupingForScope($scope)->pivot->roles ?? collect();
+    }
 
     public function getDirectPermissionsForScopeAndAllPossibleParentScopes(Model $scope): Collection
     {
@@ -138,6 +143,11 @@ trait HasScopes
         }
 
         return $permissions;
+    }
+
+    public function getDirectPermissionsForScope(Model $scopes): Collection
+    {
+        return $this->getGroupingForScope($scopes)->pivot->permissions ?? collect();
     }
 
     public function getPermissionsViaRolesForScopeAndAllPossibleParentScopes(Model $scope): Collection
@@ -151,15 +161,25 @@ trait HasScopes
         return $permissions;
     }
 
+    public function getPermissionsViaRolesForScope(Model $scope): Collection
+    {
+        return $this->getGroupingForScope($scope)->pivot->getPermissionsViaRoles() ?? collect();
+    }
+
     public function getAllPermissionsForScopeAndAllPossibleParentScopes(Model $scope): Collection
     {
-        $permissions =  $this->getAllPermissionsForScope($scope);
+        $permissions = $this->getAllPermissionsForScope($scope);
 
         if (method_exists($this, 'getAllPermissions')) {
             $permissions = $permissions->merge($this->getAllPermissions());
         }
 
         return $permissions;
+    }
+
+    public function getAllPermissionsForScope(Model $scope): Collection
+    {
+        return $this->getGroupingForScope($scope)->pivot->getAllPermissions() ?? collect();
     }
 
 }
