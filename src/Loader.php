@@ -43,7 +43,7 @@ class Loader
     {
         try {
             if (($scope = $user->resolveCurrentScope()) && method_exists($user, 'withScopeHasPermissionTo')) {
-                return $user->withScopeHasPermissionTo($scope, $ability);
+                return $user->withScopeHasPermissionTo($scope, $ability) ?: null;
             }
         } catch (PermissionDoesNotExist $e) {
             // Skip for undefined permissions
