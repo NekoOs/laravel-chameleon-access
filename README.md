@@ -5,7 +5,7 @@ laravel-chameleon-access
 You can install the package via composer:
 
 ```bash
-composer require spatie/laravel-permission
+composer nekoos/laravel-permission-grouping
 ```
 
 Optional: The service provider will automatically get registered. Or you may manually add the service provider in your config/app.php file:
