@@ -1,5 +1,5 @@
 {
-    "name": "nekoos/laravel-chameleon-access",
+    "name": "nekoos/laravel-permission-grouping",
     "description": "Permission handling for Laravel 6.0 and up",
     "type": "library",
     "license": "MIT",
