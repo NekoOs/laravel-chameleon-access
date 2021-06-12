@@ -13,22 +13,22 @@ Optional: The service provider will automatically get registered. Or you may man
 ```php
 'providers' => [
     // ...
-    NekoOs\ChameleonAccess\Providers\Initialize::class,
+    NekoOs\Laravel\Permission\Providers\Initialize::class,
 ];
 ```
 
 You should publish the migration and the config/permission.php config file with:
 
 ```bash
-php artisan vendor:publish --provider="NekoOs\ChameleonAccess\Providers\Initialize"
+php artisan vendor:publish --provider="NekoOs\Laravel\Permission\Providers\Initialize"
 ```
 
 ## Usage
 
-First, add the NekoOs\ChameleonAccess\HasScopes trait to your User model(s):
+First, add the NekoOs\Laravel\Permission\HasScopes trait to your User model(s):
 
 ```php
-use NekoOs\ChameleonAccess\HasScopes;
+use NekoOs\Laravel\Permission\HasScopes;
 
 class User
 {

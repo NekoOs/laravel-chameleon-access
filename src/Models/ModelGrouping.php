@@ -1,6 +1,6 @@
 <?php
 
-namespace NekoOs\ChameleonAccess\Models;
+namespace NekoOs\Laravel\Permission\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphPivot;
@@ -10,7 +10,7 @@ use Spatie\Permission\Contracts\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
- * @package NekoOs\ChameleonAccess\Models
+ * @package NekoOs\Laravel\Permission\Models
  *
  * @property string                  $grouping_id
  * @property Collection|Permission[] $permissions

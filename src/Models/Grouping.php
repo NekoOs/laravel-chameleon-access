@@ -1,6 +1,6 @@
 <?php
 
-namespace NekoOs\ChameleonAccess\Models;
+namespace NekoOs\Laravel\Permission\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

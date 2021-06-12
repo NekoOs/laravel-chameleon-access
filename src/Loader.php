@@ -1,13 +1,13 @@
 <?php
 
-namespace NekoOs\ChameleonAccess;
+namespace NekoOs\Laravel\Permission;
 
 use Closure;
 use Illuminate\Contracts\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Contracts\Foundation\Application;
-use NekoOs\ChameleonAccess\Concerns\HasScopes;
-use NekoOs\ChameleonAccess\Contracts\Scope;
+use NekoOs\Laravel\Permission\Concerns\HasScopes;
+use NekoOs\Laravel\Permission\Contracts\Scope;
 use Spatie\Permission\Exceptions\PermissionDoesNotExist;
 
 class Loader

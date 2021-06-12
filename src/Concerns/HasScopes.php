@@ -1,6 +1,6 @@
 <?php
 
-namespace NekoOs\ChameleonAccess\Concerns;
+namespace NekoOs\Laravel\Permission\Concerns;
 
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Database\Eloquent\Model;
@@ -8,12 +8,12 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
-use NekoOs\ChameleonAccess\Contracts\Scope;
-use NekoOs\ChameleonAccess\Models\Grouping;
-use NekoOs\ChameleonAccess\Models\ModelGrouping;
+use NekoOs\Laravel\Permission\Contracts\Scope;
+use NekoOs\Laravel\Permission\Models\Grouping;
+use NekoOs\Laravel\Permission\Models\ModelGrouping;
 
 /**
- * @package NekoOs\ChameleonAccess
+ * @package NekoOs\Laravel\Permission
  *
  * @property-read Collection|Grouping[]      $groupings
  * @property-read Collection|ModelGrouping[] $pivot

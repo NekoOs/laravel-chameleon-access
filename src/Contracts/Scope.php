@@ -1,6 +1,6 @@
 <?php
 
-namespace NekoOs\ChameleonAccess\Contracts;
+namespace NekoOs\Laravel\Permission\Contracts;
 
 interface Scope {
 

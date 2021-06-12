@@ -15,13 +15,13 @@
     },
     "autoload": {
         "psr-4": {
-            "NekoOs\\ChameleonAccess\\": "src/"
+            "NekoOs\\Laravel\\Permission\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "NekoOs\\ChameleonAccess\\Providers\\Initialize"
+                "NekoOs\\Laravel\\Permission\\Providers\\Initialize"
             ]
         }
     }

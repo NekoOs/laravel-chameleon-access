@@ -1,11 +1,11 @@
 <?php
 
-namespace NekoOs\ChameleonAccess\Providers;
+namespace NekoOs\Laravel\Permission\Providers;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
-use NekoOs\ChameleonAccess\Loader;
+use NekoOs\Laravel\Permission\Loader;
 
 class Initialize extends ServiceProvider
 {
