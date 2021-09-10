@@ -96,6 +96,13 @@ trait HasScopes
             ->pivot
             ->syncRoles($roles);
     }
+    
+    public function withScopeRemoveRole(Model $scope, $role): void
+    {
+        $this->groupScope($scope)
+            ->pivot
+            ->removeRole($role);
+    }
 
     public function can($ability, $arguments = [])
     {
